@@ -79,11 +79,76 @@
           transform: scale(1);
         }
       }
+      /* Falling hearts container */
+.heart {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  background: red;
+  transform: rotate(45deg);
+  left: 50%;
+  top: -20px;
+  animation: fall linear infinite;
+  z-index: 9999;
+}
+
+.heart::before,
+.heart::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: red;
+  border-radius: 50%;
+}
+
+.heart::before {
+  top: -10px;
+  left: 0;
+}
+
+.heart::after {
+  left: 10px;
+  top: 0;
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(0) rotate(45deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(45deg);
+    opacity: 0;
+  }
+}
+#toggleHeartsBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #ffb6c1;
+  color: white;
+  border-radius: 20px;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  z-index: 10000; /* make sure it’s above hearts */
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+#toggleHeartsBtn:hover {
+  background-color: #ff87a2;
+}
+
+
     </style>
   </head>
-
+  
   <body>
+    
     <div class="container">
+      
       <h1>Will You Be My Valentine? 💖</h1>
 
       <div class="buttons">
@@ -92,54 +157,117 @@
       </div>
 
       <div id="response"></div>
+      
     </div>
+    <button id="toggleHeartsBtn" style="margin-top: 20px; background-color: #ffb6c1; color: white; border-radius: 20px; padding: 8px 15px; border: none; cursor: pointer;">
+        Toggle Falling Hearts
+      </button>
 
     <script>
-  const yesBtn = document.getElementById("yesBtn");
-  const noBtn = document.getElementById("noBtn");
-  const response = document.getElementById("response");
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const response = document.getElementById("response");
 
-  yesBtn.addEventListener("click", () => {
+// Array of celebration GIFs
+const gifs = [
+  "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif",
+  "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjMwaGRidHU1eWpjcm1tb2l2cmNrdjYxcnV3aHViMXpjZjFocXVsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/auGFCmg6rM0eI/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWd4aWJmYnF1a2ZoNHh5bzdvdmE0YWI0dHFuOXBzYXhtbGtraGwwciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/jyYLZNC0smvFiNZur9/giphy.gif",
+  "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbTkzcmdzNzAxODV4eWlhbnduZWZ4YjN4YTdzODFyOGNvOHVjamtmaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/8QbwUh40Hl96yMgvOx/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWd4aWJmYnF1a2ZoNHh5bzdvdmE0YWI0dHFuOXBzYXhtbGtraGwwciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/cFZ7Sd0Eiz1urtmFSb/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWd4aWJmYnF1a2ZoNHh5bzdvdmE0YWI0dHFuOXBzYXhtbGtraGwwciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/7k3ThwwMXnHCE/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWd4aWJmYnF1a2ZoNHh5bzdvdmE0YWI0dHFuOXBzYXhtbGtraGwwciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/OGeHosTuPqPsrQIg9k/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWd4aWJmYnF1a2ZoNHh5bzdvdmE0YWI0dHFuOXBzYXhtbGtraGwwciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/9rgVLYnPzzUpLsaaxN/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3d3R4cXM5dDlleGJ4NmdyY3BjN3drcmlkZnh1dGx0MzRoOWI0NDh3dyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/Pk9n41p2yA7CFGJg60/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3dHZnbjFkczFwejRteHU5M252ZnVidTRwZ3MweDBuaHpxa3pvanBiaCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oriO6qJiXajN0TyDu/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3dHZnbjFkczFwejRteHU5M252ZnVidTRwZ3MweDBuaHpxa3pvanBiaCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/sNPeJFq6YNEvLZdcqX/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ZHJqbTZmemgxb2lqa3NyOXFjcHFmenptejFzbDBxc3FpcWFxcWRhYyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/jU2ZYjA8ngdKU/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3dHZnbjFkczFwejRteHU5M252ZnVidTRwZ3MweDBuaHpxa3pvanBiaCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o7TKoWXm3okO1kgHC/giphy.gif",
+  "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3d3R4cXM5dDlleGJ4NmdyY3BjN3drcmlkZnh1dGx0MzRoOWI0NDh3dyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/L2CGdCUzxnueBGE7vI/giphy.gif"
+
+];
+
+yesBtn.addEventListener("click", () => {
+  // Pick a random GIF
+  const randomGif = gifs[Math.floor(Math.random() * gifs.length)];
+
+  // Display it
   response.innerHTML = `
     <div class="celebrate">
-      <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" 
+      <img src="${randomGif}" 
            alt="Happy celebration gif"
            style="max-width:300px; border-radius:20px;">
     </div>
   `;
+  
 });
 
+// ---- NO button code stays the same ----
+function moveNoButton() {
+  const padding = 20;
+  const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+  const maxY = window.innerHeight - noBtn.offsetHeight - padding;
 
-  function moveNoButton() {
-    const padding = 20;
+  const randomX = Math.floor(Math.random() * maxX);
+  const randomY = Math.floor(Math.random() * maxY);
 
-    const maxX = window.innerWidth - noBtn.offsetWidth - padding;
-    const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+  noBtn.style.position = "fixed";
+  noBtn.style.left = randomX + "px";
+  noBtn.style.top = randomY + "px";
+}
 
-    const randomX = Math.floor(Math.random() * maxX);
-    const randomY = Math.floor(Math.random() * maxY);
+document.addEventListener("mousemove", (e) => {
+  const rect = noBtn.getBoundingClientRect();
+  const distance = Math.hypot(
+    e.clientX - (rect.left + rect.width / 2),
+    e.clientY - (rect.top + rect.height / 2)
+  );
 
-    noBtn.style.position = "fixed";
-    noBtn.style.left = randomX + "px";
-    noBtn.style.top = randomY + "px";
-  }
+  if (distance < 120) moveNoButton();
+});
 
-  // Move when mouse gets close
-  document.addEventListener("mousemove", (e) => {
-    const rect = noBtn.getBoundingClientRect();
-    const distance = Math.hypot(
-      e.clientX - (rect.left + rect.width / 2),
-      e.clientY - (rect.top + rect.height / 2)
-    );
+noBtn.addEventListener("mouseover", moveNoButton);
 
-    if (distance < 120) {
-      moveNoButton();
-    }
-  });
 
-  // Backup escape if somehow hovered
-  noBtn.addEventListener("mouseover", moveNoButton);
+
+let heartsEnabled = true; // hearts on by default
+const toggleHeartsBtn = document.getElementById("toggleHeartsBtn");
+
+toggleHeartsBtn.addEventListener("click", () => {
+  heartsEnabled = !heartsEnabled;
+  toggleHeartsBtn.textContent = heartsEnabled ? "Turn Off Falling Hearts" : "Turn On Falling Hearts";
+});
+
+// Falling hearts effect
+function createHeart() {
+  if (!heartsEnabled) return; // don't create if disabled
+
+  const heart = document.createElement("div");
+  heart.classList.add("heart");
+
+  // Random horizontal start position
+  heart.style.left = Math.random() * window.innerWidth + "px";
+
+  // Random size and animation duration
+  const size = 10 + Math.random() * 20;
+  heart.style.width = size + "px";
+  heart.style.height = size + "px";
+  heart.style.animationDuration = 3 + Math.random() * 3 + "s";
+
+  document.body.appendChild(heart);
+
+  // Remove after animation
+  setTimeout(() => heart.remove(), parseFloat(heart.style.animationDuration) * 1000);
+}
+
+// Heart creation loop
+setInterval(createHeart, 300);
+
+
+
+
 </script>
+
 
   </body>
 </html>
