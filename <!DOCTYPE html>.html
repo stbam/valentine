@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Be My Valentine?</title>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Comic Sans MS", cursive;
+        background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+        text-align: center;
+      }
+
+      .container {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        position: relative;
+      }
+
+      h1 {
+        color: #ff4b5c;
+        font-size: 2.5rem;
+      }
+
+      .buttons {
+        margin-top: 30px;
+        position: relative;
+        height: 100px;
+      }
+
+      button {
+        padding: 12px 25px;
+        font-size: 1.2rem;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: absolute;
+      }
+
+      #yesBtn {
+        background-color: #ff4b5c;
+        color: white;
+        left: 30%;
+      }
+
+      #yesBtn:hover {
+        transform: scale(1.1);
+        background-color: #ff1e40;
+      }
+
+      #noBtn {
+        background-color: #999;
+        color: white;
+        left: 55%;
+      }
+
+      .celebrate {
+        font-size: 3rem;
+        margin-top: 20px;
+        animation: pop 0.5s ease forwards;
+      }
+
+      @keyframes pop {
+        0% {
+          transform: scale(0);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Will You Be My Valentine? 💖</h1>
+
+      <div class="buttons">
+        <button id="yesBtn">Yes 💘</button>
+        <button id="noBtn">No 😢</button>
+      </div>
+
+      <div id="response"></div>
+    </div>
+
+    <script>
+  const yesBtn = document.getElementById("yesBtn");
+  const noBtn = document.getElementById("noBtn");
+  const response = document.getElementById("response");
+
+  yesBtn.addEventListener("click", () => {
+  response.innerHTML = `
+    <div class="celebrate">
+      <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" 
+           alt="Happy celebration gif"
+           style="max-width:300px; border-radius:20px;">
+    </div>
+  `;
+});
+
+
+  function moveNoButton() {
+    const padding = 20;
+
+    const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+    const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+
+    const randomX = Math.floor(Math.random() * maxX);
+    const randomY = Math.floor(Math.random() * maxY);
+
+    noBtn.style.position = "fixed";
+    noBtn.style.left = randomX + "px";
+    noBtn.style.top = randomY + "px";
+  }
+
+  // Move when mouse gets close
+  document.addEventListener("mousemove", (e) => {
+    const rect = noBtn.getBoundingClientRect();
+    const distance = Math.hypot(
+      e.clientX - (rect.left + rect.width / 2),
+      e.clientY - (rect.top + rect.height / 2)
+    );
+
+    if (distance < 120) {
+      moveNoButton();
+    }
+  });
+
+  // Backup escape if somehow hovered
+  noBtn.addEventListener("mouseover", moveNoButton);
+</script>
+
+  </body>
+</html>
